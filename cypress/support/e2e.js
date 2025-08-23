@@ -15,3 +15,15 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+import 'cypress-schema-validator';
+
+export function testArrayHasValidNumbers(jsonArray) {
+    jsonArray.forEach(item => {
+         // Assert that each item is a number and not NaN
+          if (typeof item !== 'number' || Number.isNaN(item)) {
+            return false;
+          }
+          
+    });
+    return true;
+}

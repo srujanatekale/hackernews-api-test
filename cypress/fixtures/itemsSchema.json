@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "by": { "type": "string" },
+    "descendants": { "type": "integer" },
+    "id": { "type": "integer" },
+    "kids": {
+      "type": "array",
+      "items": { "type": "integer" }
+    },
+    "score": { "type": "integer" },
+    "time": { "type": "integer" },
+    "title": { "type": "string" },
+    "type": { "type": "string" },
+    "url": { "type": "string", "format": "uri" }
+  },
+  "required": [
+    "by",
+    "descendants",
+    "id",
+    "kids",
+    "score",
+    "time",
+    "title",
+    "type",
+    "url"
+  ]
+}
