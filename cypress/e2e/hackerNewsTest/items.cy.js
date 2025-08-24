@@ -2,7 +2,7 @@ import {testArrayHasValidNumbers} from '../../support/e2e.js'
 describe('Items', () => {
   beforeEach(function() {
     cy.request('GET', 'https://hacker-news.firebaseio.com/v0/topstories.json').then((response) => { 
-        cy.wrap(response.body[0]).as('topStoryId');
+        cy.wrap(response.body).as('topStoryIds');
     })
 
     cy.fixture('itemsSchema.json').then((schema) => {
@@ -15,29 +15,34 @@ describe('Items', () => {
 
 
   it('should return valid story for given id', function() { 
-    cy.request('GET', `https://hacker-news.firebaseio.com/v0/item/${this.topStoryId}.json`).validateSchema (this.itemsSchema).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body).to.have.property('id', this.topStoryId);
-        expect(response.body).to.have.property('type', 'story');
+    this.topStoryIds.forEach(topStoryId =>  {
+        cy.request('GET', `https://hacker-news.firebaseio.com/v0/item/${topStoryId}.json`).validateSchema (this.itemsSchema).then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body).to.have.property('id', topStoryId);
+            expect(response.body).to.have.property('type', 'story');
+        })
     })
 
   })
 
-  it('should return valid comment for given id', function() { 
-    cy.request('GET', `https://hacker-news.firebaseio.com/v0/item/${this.topStoryId}.json`).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body).to.have.property('id', this.topStoryId);
-        expect(response.body).to.have.property('type', 'story');
-        if (response.body.kids && response.body.kids.length > 0) {
-            const commentId = response.body.kids[0];
-            cy.request('GET', `https://hacker-news.firebaseio.com/v0/item/${commentId}.json`).validateSchema (this.itemCommentsSchema).then((commentResponse) => {
-                expect(commentResponse.status).to.eq(200);
-                expect(commentResponse.body).to.have.property('id', commentId);
-                expect(commentResponse.body).to.have.property('type', 'comment');
-            })
-        } else {
-            this.skip(); // Skip the test if there are no comments
-        }
+  it('should return valid comment for given id', function() {
+    this.topStoryIds.forEach(topStoryId =>  { 
+        cy.request('GET', `https://hacker-news.firebaseio.com/v0/item/${topStoryId}.json`).then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body).to.have.property('id', topStoryId);
+            expect(response.body).to.have.property('type', 'story');
+            if (response.body.kids && response.body.kids.length > 0) {
+                response.body.kids.forEach(commentId => {
+                    cy.request('GET', `https://hacker-news.firebaseio.com/v0/item/${commentId}.json`).validateSchema (this.itemCommentsSchema).then((commentResponse) => {
+                        expect(commentResponse.status).to.eq(200);
+                        expect(commentResponse.body).to.have.property('id', commentId);
+                        expect(commentResponse.body).to.have.property('type', 'comment');
+                    })
+                })
+            } else {
+                this.skip(); // Skip the test if there are no comments
+            }
+        })
     })
 })
 

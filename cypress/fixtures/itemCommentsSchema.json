@@ -13,11 +13,8 @@
     "type": { "type": "string" }
   },
   "required": [
-    "by",
     "id",
-    "kids",
     "parent",
-    "text",
     "time",
     "type"
     ]
